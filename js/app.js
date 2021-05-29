@@ -1,75 +1,22 @@
 
-//Things to note!!!
-// Create a branch for each step of the way
-
-// Look over and make more descriptive sudo code
-/*
-#### Possible things we need
-- Global Varibles
-  - Arrays
-  - Counter - starts 0 clicks . max of 25 clicks?
-  - window into the DOM - container, img one img two, view results?
-- COnstructor
-  - image souce
-  - name
-  - clicks
-  - views
-  -  push allImages into array
-- prototype methods???
-  -Shouldnt need???
-- Functions
-  - Render two unique images into the DOM
-    - generate rendom numbers to get an image from an array
-    - assign randoms to vatiables, push into ana rray (ESPECIALLY FOR MORE 2 IMAGES)
-    - validattion to make sure the random numbers are not the same
-    - once we have 2 unique images to renter. incredment viewd for BOTH objects
-  - need tro rerender images - EVENT HANDLER
-    - if the images are assigned by property, all we need to do for new images, is reassing the properties
-    - increment counter
-    - event handler can call render function again
-    - log what was clicked - in other worlds, increment THAT objects "click" property
-    - hit limit - stop rendering when hit 25 clicks 0 remove event handler
-    - can add button then OR the vutton could ecsist all along
-  - button NEEDS seperate event handler
-    - validation on vutton (if it already exists) if clicks = 25 then do the thing
-    - render lists of results
-      - render name, number of views, and number of clicks
-
-*/
 
 // Global variables
 const allImg = [];
-
-// array with includes!!!!
-
 let imageOne = document.querySelector('div img:first-child');
 let imageTwo = document.querySelector('div img:nth-child(2)');
 let imageThree = document.querySelector('div img:last-child');
-const parentEl = document.getElementById('results');
-
-// let myContainer = document.getElementById('box-one');
-
-// Not sure if needed unless posting to let user see
-// const myForm = document.getElementById('form');
-
+let resultButton = document.getElementById('button');
+let myContainer = document.getElementById('imageList');
 let clicks = 0;
 let clicksAllowed = 25;
 
-// ########## 1 ##########
-// DONE: Display 3 unique RANDOM items at a time, side by side
-// They will pick a favorite
-// Store the favorite
-
-// DONE: Create a constructor Function
-// DONE: Inside that change are (name of product, img file path, times image has been shown)
 
 function Catelog (name, imgLocation = 'jpg') {
   this.name = name;
   this.src = `img/${name}.${imgLocation}`;
-  // this.shown = shown;
-  // this.clicks = 0;
-  this.views = 0;
+  this.view = 0;
   this.favImg = 0;
+  this.clicks = 0;
   allImg.push(this);
 }
 
@@ -93,8 +40,6 @@ new Catelog ('unicorn');
 new Catelog ('water-can');
 new Catelog ('wine-glass');
 
-
-
 function selectRandomImageIndex () {
   return Math.floor(Math.random() * allImg.length);
 }
@@ -103,11 +48,15 @@ function renderRandomImg () {
   let imgOne = selectRandomImageIndex();
   let imgTwo = selectRandomImageIndex();
   let imgThree = selectRandomImageIndex();
-  
-  // change this into an array, compare it better
-  while (imgOne === imgTwo){
+  while (
+    (imgOne === imgTwo)
+     || (imgTwo === imgThree)
+     || (imgThree === imgOne))
+  {
     imgTwo = selectRandomImageIndex();
+    imgThree = selectRandomImageIndex();
   }
+
   imageOne.src = allImg[imgOne].src;
   imageOne.alt = allImg[imgOne].name;
   allImg[imgOne].view++;
@@ -129,30 +78,40 @@ function renderRandomImg () {
 
 function handleImageClick(event) {
   if (event.target === myContainer){
-    alert('Click on an image please');
+    window.alert('Click on an image please');
   }
 
   clicks++;
   let clickedImg = event.target.alt;
   for (let i = 0; i < allImg.length; i++){
-    for (let j = 0; j < allImg[i]; j++){
+    if (clickedImg === allImg[i].name) {
       allImg[i].clicks++;
     }
   }
   renderRandomImg();
-
   if(clicks === clicksAllowed){
     myContainer.removeEventListener('click', handleImageClick);
+    appendDOM('p', 'Enough images have been clicked. Please click results for your total', resultButton);
   }
 }
 
-
 function renderImageResults () {
-  let el = document.querySelector(element);
-  // for...for...for..
-  el.textContent = content;
-  parent.appendChild(el);
+  let el = document.getElementById('results');
+  for (let i = 0; i < allImg.length; i++){
+    let elLi = document.createElement('li');
+    elLi.textContent = `${allImg[i].name} had ${allImg[i].view} views and was clicked ${allImg[i].clicks} times`;
+    el.appendChild(elLi);
+  }
 }
+
+let handleResultClick = function(event) { //eslint-disable-line
+  // if (event.target.clicks === clicksAllowed) {
+  if (clicks === clicksAllowed) {
+    renderImageResults();
+    resultButton.removeEventListener('click', handleResultClick);
+  }
+  // make if true { remove event listener}
+};
 
 // changes image to certain width, for posting results
 //imageOne.style.width = 50px;
@@ -163,10 +122,9 @@ function appendDOM (element, content, parent) {
   parent.appendChild(el);
 }
 
-appendDOM('p', 'Is this working?', imageTwo);
-
 renderRandomImg();
 
+resultButton.addEventListener('click', handleResultClick);
 myContainer.addEventListener('click', handleImageClick);
 
 
@@ -175,21 +133,60 @@ myContainer.addEventListener('click', handleImageClick);
 
 
 
-let handleClick = function (event) {
-  console.log('the event.target.id is ', event.target.id);
-  if (event.target.id === 'box-one') {
-    // Append to DOM and Count
-    Catelog.timesClicked();
-  } else if (event.target.id === 'box-two') {
-    Catelog.timesClicked();
-  } else if (event.target.id === 'box-three') {
-    Catelog.timesClicked();
-  } else {
-    let el = document.createElement('p');
-    el.textContent = 'Please Click an Image';
-    parentEl.appendChild(el);
-  }
-};
+
+
+
+
+
+//Things to note!!!
+// Create a branch for each step of the way
+
+// Look over and make more descriptive sudo code
+/*
+#### Possible things we need
+- Global Varibles
+  - Arrays
+  - Counter - starts 0 clicks . max of 25 clicks?
+  - window into the DOM - container, img one img two, view results?
+- COnstructor
+  - image souce
+  - name
+  - clicks
+  - views
+  -  push allImages into array
+- prototype methods???
+  -Shouldnt need???
+- Functions
+  - Render three unique images into the DOM
+    - generate random numbers to get an image from an array
+    - assign randoms to vatiables, push into ana rray (ESPECIALLY FOR MORE 2 IMAGES)
+    - validattion to make sure the random numbers are not the same
+    - once we have 2 unique images to renter. incredment viewd for BOTH objects
+  - need tro rerender images - EVENT HANDLER
+    - if the images are assigned by property, all we need to do for new images, is reassing the properties
+    - increment counter
+    - event handler can call render function again
+    - log what was clicked - in other worlds, increment THAT objects "click" property
+    - hit limit - stop rendering when hit 25 clicks 0 remove event handler
+    - can add button then OR the vutton could ecsist all along
+
+  - button NEEDS seperate event handler
+    - validation on vutton (if it already exists) if clicks = 25 then do the thing
+    - render lists of results
+      - render name, number of views, and number of clicks
+
+*/
+
+
+
+// ########## 1 ##########
+// DONE: Display 3 unique RANDOM items at a time, side by side
+// They will pick a favorite
+// Store the favorite
+
+// DONE: Create a constructor Function
+// DONE: Inside that change are (name of product, img file path, times image has been shown)
+
 
 // Create algorith that will randomly generate 3 images
 // Increment its property of itmes it has been shown by one
@@ -217,24 +214,6 @@ let handleClick = function (event) {
 
 // In constructor function
 // Track how many times a profuct has been "clicked"
-
-
-
-Catelog.prototype.timesClicked = function () {
-  appendDOM('li', `${this.name}: ${this.shown} votes`, parentEl);
-  this.shown += 1;
-  // Inside here, when clicked, return new images
-  // Add +1 to the image clicked to record
-};
-
-let imgLocationArray2 = ['_../assets/bag.jpg'];
-let imageIndex = 0;
-function appendDOMTesting (element, content, parent) {
-  test.setAttribute('src',imgLocationArray2[imageIndex]);
-  let el = document.createElement(element);
-  el.textContent = content;
-  parent.appendChild(el);
-}
 
 // appendDOMTesting('p', imgLocationArray2, test);
 // After each click, update the newly added property to reflect it was clicked
