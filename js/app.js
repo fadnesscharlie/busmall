@@ -9,6 +9,7 @@ let resultButton = document.getElementById('button');
 let myContainer = document.getElementById('imageList');
 let clicks = 0;
 let clicksAllowed = 25;
+let imageHolder = [];
 
 
 function Catelog (name, imgLocation = 'jpg') {
@@ -45,9 +46,27 @@ function selectRandomImageIndex () {
 }
 
 function renderRandomImg () {
-  let imgOne = selectRandomImageIndex();
-  let imgTwo = selectRandomImageIndex();
-  let imgThree = selectRandomImageIndex();
+  
+  // What we want to do
+  // Compare the first array of images being shown to the next array of images
+
+
+  while (imageHolder.length < 6) {
+    let uniqueIndex = selectRandomImageIndex(); // creates random number
+    if(!imageHolder.includes(uniqueIndex)) { // sees if number already exsist inside array
+      imageHolder.push(uniqueIndex); // pushes number into array if not already inside
+    }
+  }
+
+  let imgOne = imageHolder.shift();
+  let imgTwo = imageHolder.shift();
+  let imgThree = imageHolder.shift();
+
+
+  // let imgOne = selectRandomImageIndex();
+  // let imgTwo = selectRandomImageIndex();
+  // let imgThree = selectRandomImageIndex();
+
   while (
     (imgOne === imgTwo)
      || (imgTwo === imgThree)
@@ -70,10 +89,64 @@ function renderRandomImg () {
   allImg[imgThree].view++;
 
   console.log(`
-  Image one: ${imgOne},
-  Image two: ${imgTwo},
-  Image three: ${imgThree}
+  Image one: ${allImg[imgOne].view},
+  Image two: ${allImg[imgTwo].view},
+  Image three: ${allImg[imgThree].view}
   `);
+
+
+  // Store popped items into a variable * 3
+  // compare those stored variabled to what just ran?
+  // Re-run random number generator until new numbers dont equal stored poped items
+}
+
+function renderChart () {
+  let clicksArr = [];
+  let viewsArr = [];
+  let namesArr = [];
+
+  for (let i = 0; i < allImg.length; i++) {
+    clicksArr.push(allImg[i].clicks);
+    viewsArr.push(allImg[i].view);
+    namesArr.push(allImg[i].name);
+  }
+
+  let ctx = document.getElementById('myChart').getContext('2d');
+  new Chart(ctx, { //eslint-disable-line
+    type: 'bar',
+    data: {
+      labels: namesArr,
+      datasets: [{
+        label: '# of Clicks',
+        data: clicksArr,
+        backgroundColor: [
+          'rgba(211, 169, 33, 0.5)'
+        ],
+        borderColor: [
+          'silver'
+        ],
+        borderWidth: 1
+      },
+      {
+        label: '# of Views',
+        data: viewsArr,
+        backgroundColor: [
+          'rgba(60, 201, 201, 0.5)'
+        ],
+        borderColor: [
+          'silver'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
 }
 
 function handleImageClick(event) {
@@ -108,6 +181,7 @@ let handleResultClick = function(event) { //eslint-disable-line
   // if (event.target.clicks === clicksAllowed) {
   if (clicks === clicksAllowed) {
     renderImageResults();
+    renderChart();
     resultButton.removeEventListener('click', handleResultClick);
   }
   // make if true { remove event listener}
@@ -254,3 +328,4 @@ function imagePrintTest(){
 }
 // imagePrintTest();
 // imageOne.src = allImg[0].src;
+
