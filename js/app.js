@@ -1,16 +1,17 @@
-
+'use strict';
 
 // Global variables
-const allImg = [];
+// All Categlog Data
+let allImg = [];
+let clicks = 0;
+let clicksAllowed = 25;
+// Image Array to test no repeats of images
+let imageHolder = [];
 let imageOne = document.querySelector('div img:first-child');
 let imageTwo = document.querySelector('div img:nth-child(2)');
 let imageThree = document.querySelector('div img:last-child');
 let resultButton = document.getElementById('button');
 let myContainer = document.getElementById('imageList');
-let clicks = 0;
-let clicksAllowed = 25;
-let imageHolder = [];
-
 
 function Catelog (name, imgLocation = 'jpg') {
   this.name = name;
@@ -21,60 +22,51 @@ function Catelog (name, imgLocation = 'jpg') {
   allImg.push(this);
 }
 
-new Catelog ('bag');
-new Catelog ('banana');
-new Catelog ('bathroom');
-new Catelog ('boots');
-new Catelog ('breakfast');
-new Catelog ('bubblegum');
-new Catelog ('chair');
-new Catelog ('cthulhu');
-new Catelog ('dog-duck');
-new Catelog ('dragon');
-new Catelog ('pen');
-new Catelog ('pet-sweep');
-new Catelog ('scissors');
-new Catelog ('shark');
-new Catelog ('sweep', 'png');
-new Catelog ('tauntaun');
-new Catelog ('unicorn');
-new Catelog ('water-can');
-new Catelog ('wine-glass');
+// Retrieving for local storage
+// getting it back
+let retrievedImages = localStorage['clicks'];
+console.log(retrievedImages);
+// putting back into parse
+if (retrievedImages) {
+  let parsedImages = JSON.parse(retrievedImages); // Retrieving string and making back into object
+  allImg = parsedImages;
+}
+else {
+  new Catelog ('bag');
+  new Catelog ('banana');
+  new Catelog ('bathroom');
+  new Catelog ('boots');
+  new Catelog ('breakfast');
+  new Catelog ('bubblegum');
+  new Catelog ('chair');
+  new Catelog ('cthulhu');
+  new Catelog ('dog-duck');
+  new Catelog ('dragon');
+  new Catelog ('pen');
+  new Catelog ('pet-sweep');
+  new Catelog ('scissors');
+  new Catelog ('shark');
+  new Catelog ('sweep', 'png');
+  new Catelog ('tauntaun');
+  new Catelog ('unicorn');
+  new Catelog ('water-can');
+  new Catelog ('wine-glass');
+}
 
 function selectRandomImageIndex () {
   return Math.floor(Math.random() * allImg.length);
 }
 
 function renderRandomImg () {
-  
-  // What we want to do
-  // Compare the first array of images being shown to the next array of images
-
-
   while (imageHolder.length < 6) {
     let uniqueIndex = selectRandomImageIndex(); // creates random number
     if(!imageHolder.includes(uniqueIndex)) { // sees if number already exsist inside array
       imageHolder.push(uniqueIndex); // pushes number into array if not already inside
     }
   }
-
   let imgOne = imageHolder.shift();
   let imgTwo = imageHolder.shift();
   let imgThree = imageHolder.shift();
-
-
-  // let imgOne = selectRandomImageIndex();
-  // let imgTwo = selectRandomImageIndex();
-  // let imgThree = selectRandomImageIndex();
-
-  while (
-    (imgOne === imgTwo)
-     || (imgTwo === imgThree)
-     || (imgThree === imgOne))
-  {
-    imgTwo = selectRandomImageIndex();
-    imgThree = selectRandomImageIndex();
-  }
 
   imageOne.src = allImg[imgOne].src;
   imageOne.alt = allImg[imgOne].name;
@@ -87,17 +79,6 @@ function renderRandomImg () {
   imageThree.src = allImg[imgThree].src;
   imageThree.alt = allImg[imgThree].name;
   allImg[imgThree].view++;
-
-  console.log(`
-  Image one: ${allImg[imgOne].view},
-  Image two: ${allImg[imgTwo].view},
-  Image three: ${allImg[imgThree].view}
-  `);
-
-
-  // Store popped items into a variable * 3
-  // compare those stored variabled to what just ran?
-  // Re-run random number generator until new numbers dont equal stored poped items
 }
 
 function renderChart () {
@@ -150,7 +131,7 @@ function renderChart () {
 }
 
 function handleImageClick(event) {
-  if (event.target === myContainer){
+  if (event.target === myContainer){ // make sure you click on an image
     window.alert('Click on an image please');
   }
 
@@ -158,37 +139,36 @@ function handleImageClick(event) {
   let clickedImg = event.target.alt;
   for (let i = 0; i < allImg.length; i++){
     if (clickedImg === allImg[i].name) {
-      allImg[i].clicks++;
+      allImg[i].clicks++; // adds number clicks to images taht were clicked
     }
   }
   renderRandomImg();
   if(clicks === clicksAllowed){
     myContainer.removeEventListener('click', handleImageClick);
     appendDOM('p', 'Enough images have been clicked. Please click results for your total', resultButton);
+
+    // Must use Stringify before storing
+    let stringify = JSON.stringify(allImg);
+
+    // Setting local storage
+    localStorage['clicks'] = stringify;
   }
 }
 
-function renderImageResults () {
+function renderImageResults () { // render
   let el = document.getElementById('results');
   for (let i = 0; i < allImg.length; i++){
-    let elLi = document.createElement('li');
-    elLi.textContent = `${allImg[i].name} had ${allImg[i].view} views and was clicked ${allImg[i].clicks} times`;
-    el.appendChild(elLi);
+    appendDOM('li', `${allImg[i].name} had ${allImg[i].view} views and was clicked ${allImg[i].clicks} times` , el);
   }
 }
 
 let handleResultClick = function(event) { //eslint-disable-line
-  // if (event.target.clicks === clicksAllowed) {
   if (clicks === clicksAllowed) {
     renderImageResults();
     renderChart();
     resultButton.removeEventListener('click', handleResultClick);
   }
-  // make if true { remove event listener}
 };
-
-// changes image to certain width, for posting results
-//imageOne.style.width = 50px;
 
 function appendDOM (element, content, parent) {
   let el = document.createElement(element);
@@ -197,14 +177,8 @@ function appendDOM (element, content, parent) {
 }
 
 renderRandomImg();
-
 resultButton.addEventListener('click', handleResultClick);
 myContainer.addEventListener('click', handleImageClick);
-
-
-
-
-
 
 
 
@@ -250,7 +224,6 @@ myContainer.addEventListener('click', handleImageClick);
       - render name, number of views, and number of clicks
 
 */
-
 
 
 // ########## 1 ##########
@@ -306,26 +279,6 @@ myContainer.addEventListener('click', handleImageClick);
 // list of all images and how many times they have been clicked
 // number of times the images has been seen
 
-
 // new Catelog ('bag', ../assets/bag.jpg, 0)
 // Other
 // Image name should be EXACTLY the same as file name
-
-
-function imagePrintTest(){
-  for (let i = 0; i < allImg.length; i++){
-    console.log(allImg[i].src);
-    let firstImage = document.createElement('img');
-    firstImage.setAttribute('src', allImg[i].src);
-    imageOne.appendChild(firstImage);
-
-    imageTwo.src = allImg[i].src;
-    imageThree.src = allImg[i].src;
-    test.src = allImg[i].src;
-    // console.log(imageOne);
-    // console.log(i);
-  }
-}
-// imagePrintTest();
-// imageOne.src = allImg[0].src;
-
